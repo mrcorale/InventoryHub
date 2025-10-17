@@ -21,25 +21,6 @@ It integrates a responsive dashboard, real-time item management, and API communi
 - **Bootstrap 5 + Icons**
 
 ---
-
-## 🗂️ Project Structure
-InventoryHub/
-├── Controllers/
-│ └── InventoryController.cs
-├── Data/
-│ └── InventoryContext.cs
-├── Models/
-│ └── InventoryItem.cs
-├── Pages/
-│ ├── _Host.cshtml
-│ ├── Index.razor
-│ └── Inventory.razor
-├── Shared/
-│ └── MainLayout.razor
-├── wwwroot/
-└── Program.cs
-
----
 ## ⚙️ Setup
 1. Clone the repository  
    ```bash
