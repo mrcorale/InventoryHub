@@ -1,0 +1,330 @@
+﻿@page "/inventory"
+
+<div class="inventory-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="header-title">
+                <i class="bi bi-box-seam"></i>
+                Inventory Management
+            </h1>
+            <p class="header-subtitle">Manage your inventory items efficiently</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-box2"></i>
+                </div>
+                <div class="stat-info">
+                    <p class="stat-label">Total Items</p>
+                    <p class="stat-value">@(items?.Count ?? 0)</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+                <div class="stat-info">
+                    <p class="stat-label">Total Value</p>
+                    <p class="stat-value">
+                        $@(items?.Sum(x => x.Price * x.Quantity).ToString("F2") ?? "0.00")
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Item Form Card -->
+    <div class="form-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="bi bi-plus-circle"></i>
+                Add New Item
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Item Name *</label>
+                    <input type="text"
+                           class="form-control"
+                           @bind="newItem.Name"
+                           placeholder="Enter item name"
+                           @onkeyup="HandleKeyUp" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Category *</label>
+                    <input type="text"
+                           class="form-control"
+                           @bind="newItem.Category"
+                           placeholder="e.g., Electronics, Supplies" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Quantity *</label>
+                    <input type="number"
+                           class="form-control"
+                           @bind="newItem.Quantity"
+                           placeholder="0"
+                           min="1" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Price (USD) *</label>
+                    <input type="number"
+                           class="form-control"
+                           @bind="newItem.Price"
+                           placeholder="0.00"
+                           step="0.01"
+                           min="0" />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-primary" @onclick="AddItem">
+                    <i class="bi bi-plus-lg"></i>
+                    Add Item
+                </button>
+                <button class="btn btn-secondary" @onclick="ResetForm">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    Reset
+                </button>
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <strong>Error:</strong> @errorMessage
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i>
+                    <strong>Success:</strong> @successMessage
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Items Table Card -->
+    <div class="table-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="bi bi-table"></i>
+                Items List
+            </h2>
+            <div class="header-actions">
+                <div class="search-box">
+                    <input type="text"
+                           class="search-input"
+                           @bind="searchQuery"
+                           @oninput="OnSearchChanged"
+                           placeholder="Search items..." />
+                    <i class="bi bi-search"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            @if (items is null)
+            {
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading inventory items...</p>
+                </div>
+            }
+            else if (!filteredItems.Any())
+            {
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h3>No Items Found</h3>
+                    <p>
+                        @(string.IsNullOrEmpty(searchQuery)
+                                            ? "Start by adding your first inventory item"
+                                            : "No items match your search")
+                </p>
+            </div>
+                        }
+            else
+            {
+                <div class="table-wrapper">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th><i class="bi bi-box2"></i> Name</th>
+                                <th><i class="bi bi-tag"></i> Category</th>
+                                <th><i class="bi bi-stack"></i> Quantity</th>
+                                <th><i class="bi bi-currency-dollar"></i> Price</th>
+                                <th><i class="bi bi-calculator"></i> Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in filteredItems)
+                            {
+                                <tr>
+                                    <td>@item.Name</td>
+                                    <td>@item.Category</td>
+                                    <td>@item.Quantity</td>
+                                    <td>$@item.Price.ToString("F2")</td>
+                                    <td>$@(item.Price* item.Quantity).ToString("F2")</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                @onclick="() => DeleteItem(item.Id)"
+                                                title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer -->
+                <div class="table-footer">
+                    <div class="footer-info">
+                        <p>Showing <strong>@filteredItems.Count</strong> of <strong>@items.Count</strong> items</p>
+                    </div>
+                    <div class="footer-stats">
+                        <span>Total Quantity: @filteredItems.Sum(x => x.Quantity)</span>
+                        <span>Total Value: $@filteredItems.Sum(x => x.Price * x.Quantity).ToString("F2")</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject] private InventoryService InventoryService { get; set; } = default!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private List<InventoryItem>? items;
+    private List<InventoryItem> filteredItems = new();
+    private InventoryItem newItem = new();
+    private string searchQuery = "";
+    private string errorMessage = "";
+    private string successMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            items = await InventoryService.GetItemsAsync();
+            filteredItems = items ?? new();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load inventory items: {ex.Message}";
+        }
+    }
+
+    private async Task AddItem()
+    {
+        errorMessage = "";
+        successMessage = "";
+
+        if (string.IsNullOrWhiteSpace(newItem.Name))
+        {
+            errorMessage = "Item name is required";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(newItem.Category))
+        {
+            errorMessage = "Category is required";
+            return;
+        }
+        if (newItem.Quantity <= 0)
+        {
+            errorMessage = "Quantity must be greater than 0";
+            return;
+        }
+        if (newItem.Price < 0)
+        {
+            errorMessage = "Price cannot be negative";
+            return;
+        }
+
+        try
+        {
+            await InventoryService.AddItemAsync(newItem);
+            successMessage = $"Item '{newItem.Name}' added successfully!";
+            ResetForm();
+
+            items = await InventoryService.GetItemsAsync();
+            filteredItems = items ?? new();
+
+            await Task.Delay(3000);
+            successMessage = "";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to add item: {ex.Message}";
+        }
+    }
+
+    private async Task DeleteItem(int id)
+    {
+        if (!await ConfirmDelete())
+            return;
+
+        try
+        {
+            await InventoryService.DeleteItemAsync(id);
+            items = await InventoryService.GetItemsAsync();
+            filteredItems = items ?? new();
+            successMessage = "Item deleted successfully!";
+            await Task.Delay(2000);
+            successMessage = "";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to delete item: {ex.Message}";
+        }
+    }
+
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        var query = e.Value?.ToString() ?? "";
+        FilterItems(query);
+    }
+
+    private void FilterItems(string query)
+    {
+        searchQuery = query;
+        if (items is null) return;
+
+        if (string.IsNullOrWhiteSpace(query))
+            filteredItems = items;
+        else
+        {
+            var lowerQuery = query.ToLower();
+            filteredItems = items
+                .Where(x => x.Name.ToLower().Contains(lowerQuery)
+                         || x.Category.ToLower().Contains(lowerQuery))
+                .ToList();
+        }
+    }
+
+    private void ResetForm()
+    {
+        newItem = new();
+        errorMessage = "";
+    }
+
+    private async Task<bool> ConfirmDelete() => await Task.FromResult(true);
+
+    private async Task HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await AddItem();
+    }
+}

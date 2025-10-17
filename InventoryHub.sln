@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36310.24
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryHub", "InventoryHub.csproj", "{ADCA9A18-A7C9-4215-8892-1B8A1843E16E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ADCA9A18-A7C9-4215-8892-1B8A1843E16E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADCA9A18-A7C9-4215-8892-1B8A1843E16E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADCA9A18-A7C9-4215-8892-1B8A1843E16E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADCA9A18-A7C9-4215-8892-1B8A1843E16E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B2BD742D-CE4B-4568-B212-0A06A30F939B}
+	EndGlobalSection
+EndGlobal

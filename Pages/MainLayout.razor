@@ -1,0 +1,202 @@
+﻿@inherits LayoutComponentBase
+@implements IAsyncDisposable
+
+<div class="layout-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar @(isSidebarOpen ? "sidebar-open" : "")">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="bi bi-box2"></i>
+                </div>
+                <h2 class="logo-text">InventoryHub</h2>
+            </div>
+            <button class="sidebar-close-btn" @onclick="ToggleSidebar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="sidebar-nav">
+            @foreach (var item in menuItems)
+            {
+                <a href="@item.Url"
+                   class="nav-item @(item.IsActive ? "nav-item-active" : "")"
+                   @onclick="(() => HandleMenuClick(item))">
+                    <i class="@item.Icon"></i>
+                    <span class="nav-label">@item.Label</span>
+                    @if (item.IsActive)
+                    {
+                        <div class="nav-indicator"></div>
+                    }
+                </a>
+            }
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+            <p class="sidebar-version">InventoryHub v1.0</p>
+            <p class="sidebar-copyright">© 2025 All Rights Reserved</p>
+        </div>
+    </aside>
+
+    <!-- Sidebar Overlay for Mobile -->
+    @if (isSidebarOpen)
+    {
+        <div class="sidebar-overlay" @onclick="ToggleSidebar"></div>
+    }
+
+    <!-- Main Content Area -->
+    <div class="main-container">
+        <!-- Navbar -->
+        <header class="navbar">
+            <div class="navbar-content">
+                <!-- Left Section -->
+                <div class="navbar-left">
+                    <button class="navbar-toggle" @onclick="ToggleSidebar">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <h1 class="page-title">@currentPageTitle</h1>
+                </div>
+
+                <!-- Right Section -->
+                <div class="navbar-right">
+                    <!-- Search Bar -->
+                    <div class="search-container">
+                        <input type="text"
+                               class="search-input"
+                               placeholder="Search..."
+                               @onchange="@((ChangeEventArgs e) => HandleSearch((string)e.Value!))" />
+                        <i class="bi bi-search"></i>
+                    </div>
+
+                    <!-- Notification Bell -->
+                    <button class="navbar-icon-btn notification-btn" @onclick="ToggleNotifications">
+                        <i class="bi bi-bell"></i>
+                        @if (notificationCount > 0)
+                        {
+                            <span class="notification-badge">@notificationCount</span>
+                        }
+                    </button>
+
+                    <!-- Settings Button -->
+                    <button class="navbar-icon-btn">
+                        <i class="bi bi-gear"></i>
+                    </button>
+
+                    <!-- User Profile Menu -->
+                    <div class="profile-menu-container">
+                        <button class="profile-btn" @onclick="ToggleProfileMenu">
+                            <img src="https://i.pravatar.cc/40?u=@userEmail" alt="Profile" class="profile-avatar" />
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+
+                        @if (isProfileMenuOpen)
+                        {
+                            <div class="dropdown-menu profile-dropdown">
+                                <div class="dropdown-header">
+                                    <p class="dropdown-username">@userName</p>
+                                    <p class="dropdown-email">@userEmail</p>
+                                </div>
+                                <a href="#" class="dropdown-item">
+                                    <i class="bi bi-person"></i>
+                                    <span>My Profile</span>
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <i class="bi bi-gear"></i>
+                                    <span>Settings</span>
+                                </a>
+                                <a href="#" class="dropdown-item">
+                                    <i class="bi bi-question-circle"></i>
+                                    <span>Help & Support</span>
+                                </a>
+                                <hr class="dropdown-divider" />
+                                <button class="dropdown-item logout-item" @onclick="HandleLogout">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    <span>Logout</span>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            @Body
+        </main>
+    </div>
+</div>
+
+@code {
+    private bool isSidebarOpen = false;
+    private bool isProfileMenuOpen = false;
+    private bool isNotificationsOpen = false;
+    private int notificationCount = 3;
+    private string currentPageTitle = "Dashboard";
+    private string userName = "John Developer";
+    private string userEmail = "john@inventoryhub.com";
+    private string searchQuery = "";
+
+    private List<MenuItem> menuItems = new()
+    {
+        new MenuItem("Dashboard", "/", "bi bi-speedometer2", true),
+        new MenuItem("Inventory", "/inventory", "bi bi-box-seam"),
+        new MenuItem("Products", "/products", "bi bi-tag"),
+        new MenuItem("Orders", "/orders", "bi bi-cart-check"),
+        new MenuItem("Analytics", "/analytics", "bi bi-graph-up"),
+        new MenuItem("Reports", "/reports", "bi bi-file-earmark-text"),
+        new MenuItem("Settings", "/settings", "bi bi-sliders2")
+    };
+
+    protected override Task OnInitializedAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    private void ToggleSidebar()
+    {
+        isSidebarOpen = !isSidebarOpen;
+    }
+
+    private void ToggleProfileMenu()
+    {
+        isProfileMenuOpen = !isProfileMenuOpen;
+        if (isProfileMenuOpen)
+            isNotificationsOpen = false;
+    }
+
+    private void ToggleNotifications()
+    {
+        isNotificationsOpen = !isNotificationsOpen;
+        if (isNotificationsOpen)
+            isProfileMenuOpen = false;
+    }
+
+    private void HandleMenuClick(MenuItem item)
+    {
+        currentPageTitle = item.Label;
+        foreach (var menuItem in menuItems)
+            menuItem.IsActive = menuItem.Label == item.Label;
+
+        isSidebarOpen = false;
+        StateHasChanged();
+    }
+
+    private void HandleSearch(string query)
+    {
+        searchQuery = query;
+    }
+
+    private Task HandleLogout()
+    {
+        return Task.CompletedTask;
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        await Task.CompletedTask;
+    }
+}
