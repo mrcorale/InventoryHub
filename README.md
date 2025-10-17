@@ -29,5 +29,5 @@ It integrates a responsive dashboard, real-time item management, and API communi
 
 ---
 
-##📜 License
+## 📜 License
 This project is licensed under the MIT License.
