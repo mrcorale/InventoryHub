@@ -30,6 +30,5 @@ It integrates a responsive dashboard, real-time item management, and API communi
 ---
 
 📜 License
-This project is licensed under the MIT License.
 
-Would you like me to make it **slightly longer**, including a short “Reflective Summary” section explaining how **Microsoft Copilot** helped you through integration, debugging, and optimization (as required in your assignment rubric)?
+This project is licensed under the MIT License.
